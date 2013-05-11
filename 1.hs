@@ -20,5 +20,3 @@ countChars str = unlines lengths where
 		   allLines = lines
 
 
-
-
