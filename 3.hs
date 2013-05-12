@@ -25,9 +25,18 @@ cipher2 s n = map (rotate2 n) s where
         rotate2 n c = ([c..'z'] ++ ['a'..c]) !! mod n 26
                     
 
+isPal [] = True
+isPal [_] = True
+isPal (x:xs) = (x == last xs) && (isPal $ init xs)
+
+isPal2 lst = reverse lst == lst
+
+
 fac1 0 = 1
 fac1 n = n * fac1 (n - 1)
 
 fac2 n = fac' n 1 where
      fac' 0 acc = acc
      fac' n acc = fac' (n - 1) (n * acc)
+
+
