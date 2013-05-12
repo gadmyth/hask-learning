@@ -8,6 +8,12 @@ rev [] = []
 rev (x:xs) = rev xs ++ [x]
 
 
+zipTogether :: [a] -> [b] -> [(a, b)]
+zipTogether [] _ = []
+zipTogether _ [] = []
+zipTogether (x:xs) (y:ys) = (x, y) : zipTogether xs ys 
+
+
 fac1 0 = 1
 fac1 n = n * fac1 (n - 1)
 
