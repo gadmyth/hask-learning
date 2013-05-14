@@ -62,6 +62,10 @@ add :: Tree -> Int
 add Nil = 0
 add tree = val tree + add (left tree) + add (right tree)
 
+add2 tree = add' tree 0 where 
+     add' Nil cum = cum
+     add' tree cum = cum + val tree + add' (left tree) 0 + add' (right tree) 0
+
 filter' :: (a -> Bool) -> [a] -> [a]
 filter' f [] = []
 filter' f (x:xs) = if f x then x : filter' f xs else filter' f xs
