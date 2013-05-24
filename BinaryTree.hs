@@ -25,3 +25,15 @@ makeTree n
 add :: Tree -> Int
 add EmptyTree = 0
 add (Tree root left right) = root + add left + add right
+
+
+
+
+infixr 5 :-:
+data List a = Nil | a :-: (List a) deriving (Show, Eq)
+
+convertList [] = Nil
+convertList (x:xs) = x :-: convertList xs
+
+main = print (0 :-: 1 :-: Nil) >> print (convertList [4, 5])
+
