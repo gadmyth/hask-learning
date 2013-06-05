@@ -3,9 +3,10 @@
 
 module Main where
 
-import Data.Aeson (FromJSON, ToJSON, decode, encode)
+import Data.Aeson
 import Data.ByteString.Lazy.Char8
 import GHC.Generics (Generic)
+import Control.Applicative
 
 
 data MetaData = MetaData {
@@ -13,28 +14,32 @@ data MetaData = MetaData {
      title :: String
 } deriving (Show, Generic)
 
-instance FromJSON MetaData
+instance FromJSON MetaData where
+         parseJSON (Object o) = MetaData <$> o .: "url" <*> o .: "title" 
 
-data Properties = Propeties {
+data Properties = Properties {
      detail :: String, 
      mag :: Double
 } deriving (Show, Generic)
 
-instance FromJSON Properties
+instance FromJSON Properties where
+         parseJSON (Object o) = Properties <$> o .: "detail" <*> o .: "mag"
 
 data Feature = Feature {
      id :: String, 
      properties :: Properties
 } deriving (Show, Generic)
 
-instance FromJSON Feature
+instance FromJSON Feature where
+         parseJSON (Object o) = Feature <$> o .: "id" <*> o .: "properties"
 
 data Feed = Feed {
      metadata :: MetaData, 
      features :: [Feature]
 } deriving (Show, Generic)
 
-instance FromJSON Feed
+instance FromJSON Feed where
+         parseJSON (Object o) = Feed <$> o .: "metadata" <*> o .: "features"
 
 main :: IO ()
 main = do 
