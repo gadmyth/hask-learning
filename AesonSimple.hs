@@ -6,7 +6,7 @@ module Main where
 import Data.Aeson
 import Data.ByteString.Lazy.Char8
 import GHC.Generics (Generic)
-import Control.Applicative
+import Control.Applicative as Ap
 
 import System.IO.Streams (InputStream)
 import qualified System.IO.Streams as Streams
@@ -23,7 +23,7 @@ data MetaData = MetaData {
 
 instance FromJSON MetaData where
          parseJSON (Object o) = MetaData <$> o .: "url" <*> o .: "title" 
-	 parseJSON _ = empty
+	 parseJSON _ = Ap.empty
 
 data Properties = Properties {
      detail :: String, 
@@ -32,7 +32,7 @@ data Properties = Properties {
 
 instance FromJSON Properties where
          parseJSON (Object o) = Properties <$> o .: "detail" <*> o .: "mag"
-	 parseJSON _ = empty
+	 parseJSON _ = Ap.empty
 
 data Feature = Feature {
      id :: String, 
@@ -41,7 +41,7 @@ data Feature = Feature {
 
 instance FromJSON Feature where
          parseJSON (Object o) = Feature <$> o .: "id" <*> o .: "properties"
-	 parseJSON _ = empty
+	 parseJSON _ = Ap.empty
 
 data Feed = Feed {
      metadata :: MetaData, 
@@ -50,7 +50,7 @@ data Feed = Feed {
 
 instance FromJSON Feed where
          parseJSON (Object o) = Feed <$> o .: "metadata" <*> o .: "features"
-	 parseJSON _ = empty
+	 parseJSON _ = Ap.empty
 
 main :: IO ()
 main = do 
