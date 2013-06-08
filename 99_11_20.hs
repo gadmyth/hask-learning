@@ -23,3 +23,13 @@ mDecode mark = md' mark [] where
         md' [] lst = lst
         md' ((Single x):xs) lst = md' xs (lst ++ [x])
         md' ((count@(Multiple _ x)):xs) lst = md' ((dec count):xs) (lst ++ [x])
+
+-- | P14 Duplicate the elements of a list.
+dupli lst = dup' lst [] where
+      dup' [] cum = reverse cum
+      dup' (x:xs) cum = dup' xs (x:x:cum)
+
+-- | P15 Replicate the elements of a list a given number of times.
+repli lst n = dup' lst [] n where
+      dup' [] cum _ = reverse cum
+      dup' (x:xs) cum n = dup' xs ((replicate n x) ++ cum) n
