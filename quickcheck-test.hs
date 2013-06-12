@@ -25,5 +25,7 @@ prop_join_split' xs = forAll (elements xs) $ \c ->
 instance Arbitrary Char where
 	 arbitrary = choose ('\32', '\128')
 	 coarbitrary c = variant (ord c `rem` 4)
+	 
+deepCheck p = check (defaultConfig { configMaxTest = 1000}) p
 
-main = quickCheck prop_join_split'
+main = deepCheck prop_join_split'
