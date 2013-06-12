@@ -22,4 +22,8 @@ join c = concat . intersperse [c]
 prop_join_split' xs = forAll (elements xs) $ \c -> 
 		 join c (split c xs) == xs
 
+instance Arbitrary Char where
+	 arbitrary = choose ('\32', '\128')
+	 coarbitrary c = variant (ord c `rem` 4)
+
 main = quickCheck prop_join_split'
