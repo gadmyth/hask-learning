@@ -28,3 +28,5 @@ testOr1 = char '(' >> (char 'a' <|> char 'b') >> char ')'
 testOr2 = try (string "(a)") <|> string "(b)"
 
 word = letter >>= (\c -> (word >>= (\cs -> return (c:cs))) <|> return [c])
+
+sentence = sepBy word (skipMany1 (oneOf ",.?!" <|> space))
