@@ -1,7 +1,6 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 -- | http://ocharles.org.uk/blog/posts/2012-12-10-24-days-of-hackage-parsec.html
-
 import Text.Parsec
 import Text.Parsec.Prim
 import Control.Applicative hiding ((<|>))
