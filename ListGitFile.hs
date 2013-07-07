@@ -44,6 +44,21 @@ runp head str = do
           Right files -> do
                 mapM_ (\x -> if x /= "" then putStrLn x else return ()) files
 
+
+dot9PNGTopNG :: Parser String
+dot9PNGTopNG = (++) <$> (many (noneOf ".") <* string ".9") <*> string ".png"
+
+deleteDot9 = many $ try dot9PNGTopNG <|> skipLine
+
+noSplitTemplate = many space <++> string "template = " <++> skipSplit
+
+splitstr = do
+         manyTill anyChar (try (string "split_"))
+
+skipSplit = (string "\"") <++> (splitstr <++> (many (noneOf "\""))) <++> (string "\"")
+
+-- TODO: export the above function when add the following main
+
 main = do
      contents <- getContents --get contents from pipeline
      args <- getArgs
@@ -52,3 +67,4 @@ main = do
           "-u" -> runp untracked contents
           "-a" -> runp tracked contents
           "-m" -> runp modified contents
+          "-d.9" -> runp deleteDot9 contents
