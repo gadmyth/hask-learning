@@ -17,9 +17,6 @@ minus = (:) <$> char '-' <*> number --this can concat what read
 
 integer = plus <|> minus <|> number
 
-(<++>) a b = (++) <$> a <*> b
-(<:>) a b = (:) <$> a <*> b
-
 float = integer <++> decimal <++> exponent where
       decimal = option "" $ char '.' <:> number
       exponent = option "" $ oneOf "eE" <:> number
