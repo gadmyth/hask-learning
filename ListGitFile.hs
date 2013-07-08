@@ -75,6 +75,38 @@ skipcurveinquote = (string "\"") <++> skipcurve <++> (string "\"")
 
 skipcurve = (findstr "_curve") <++> (many (noneOf "\"\n")) <++> (count 1 newline)
 
+insertNL content = do
+         s <- count 1 newline
+         return $ s ++ content ++ "\n"
+         
+insertsplitsettingline = do
+                       head <- many (oneOf " \t")
+                       s1  <- string "si.change_surface_by_id"
+                       s2 <- many (noneOf "\n")
+                       s3 <- insertNL $ head ++ "ck.changeSplitSetting()"
+                       return $ head ++ s1 ++ s2 ++ s3
+
+
+insertSurface = many $ try (insertInBracket "ck.changeSplitSetting" "s") <|> origLine
+insertInBracket head str = do
+                s <- many (oneOf " \t")
+                s0 <- string head
+                s1 <- many (noneOf "(")
+                bl <- count 1 (char '(')
+                br <- count 1 (char ')')
+                s2 <- count 1 newline
+                return $ s ++ s0 ++ s1 ++ bl ++ str ++ br ++ s2
+
+insertSSL = many $ try insertsplitsettingline <|> origLine
+
+deleteLines start linenum = many $ try (linehead start linenum) <|> origLine
+deletedisablefirstalt = deleteLines "--disable slide_down for 1st" 13
+
+linehead str linenum = do
+         string str
+         count linenum skipLine
+         return ""
+
 
 -- TODO: export the above function when add the following main
 
@@ -88,3 +120,6 @@ main = do
           "-m" -> runp modified contents
           "-d.9" -> runp deleteDot9 contents
           "-nc" -> runp2 noCurveTemplateLine contents
+          "-iss" -> runp2 insertSSL contents
+          "-ibs" -> runp2 insertSurface contents
+          "-skip" -> runp2 deletedisablefirstalt contents
