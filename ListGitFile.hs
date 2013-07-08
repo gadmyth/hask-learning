@@ -23,6 +23,8 @@ skipLine = do
          s <- many (noneOf "\n") <* newline
          return ""
 
+origLine = many (noneOf "\n") <++> (count 1 newline)
+
 gitStatusLine :: Parser String -> Parser String
 gitStatusLine headMode = headMode *> (many1 space) *> filename <* (option "" $ many (char '\n'))
 
@@ -36,13 +38,19 @@ modified = many $ normalLine modifiedhead
 
 -- TODO: too much case
 
-runp :: Parser [String] -> String -> IO ()
-runp head str = do
+runp head str = runp_base head str putStrLn
+runp2 head str = runp_base head str putStr
+runpminus head str = runp_base head str returnNull where
+          returnNull _ = return ()
+
+
+runp_base :: Parser [String] -> String -> (String -> IO()) -> IO ()
+runp_base head str printfn = do
      case (runParser head () "" str) of
           Left err -> do
                print err
-          Right files -> do
-                mapM_ (\x -> if x /= "" then putStrLn x else return ()) files
+          Right results -> do
+                mapM_ (\x -> if x /= "" then printfn x else return ()) results
 
 
 dot9PNGTopNG :: Parser String
@@ -50,12 +58,23 @@ dot9PNGTopNG = (++) <$> (many (noneOf ".") <* string ".9") <*> string ".png"
 
 deleteDot9 = many $ try dot9PNGTopNG <|> skipLine
 
-noSplitTemplate = many space <++> string "template = " <++> skipSplit
+nocurvetplline = many (oneOf " \t") <++> string "template = " <++> skipcurveinquote
+noCurveTemplateLine = many $ try nocurvetplline <|> try altnocurveline <|> try shiftnocurveline <|> origLine
 
-splitstr = do
-         manyTill anyChar (try (string "split_"))
+altnocurveline = many (oneOf " \t") <++> string "alt_inputs = " <++> skipcurve
+shiftnocurveline = many (oneOf " \t") <++> string "shift_inputs = " <++> tobenil
 
-skipSplit = (string "\"") <++> (splitstr <++> (many (noneOf "\""))) <++> (string "\"")
+tobenil = do
+        many (noneOf "\n")
+        return "nil"
+
+findstr str = do
+         manyTill (letter <|> oneOf "_.") (try (string str))
+
+skipcurveinquote = (string "\"") <++> skipcurve <++> (string "\"")
+
+skipcurve = (findstr "_curve") <++> (many (noneOf "\"\n")) <++> (count 1 newline)
+
 
 -- TODO: export the above function when add the following main
 
@@ -68,3 +87,4 @@ main = do
           "-a" -> runp tracked contents
           "-m" -> runp modified contents
           "-d.9" -> runp deleteDot9 contents
+          "-nc" -> runp2 noCurveTemplateLine contents
