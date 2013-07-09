@@ -56,7 +56,19 @@ runp_base head str printfn = do
 dot9PNGTopNG :: Parser String
 dot9PNGTopNG = (++) <$> (many (noneOf ".") <* string ".9") <*> string ".png"
 
+appendDot9PNG str = appendName ".9.png" str
+
+appendName suffix str = do
+             s1 <- many (noneOf ".")
+             s2 <- string suffix
+             return $ s1 ++ str ++ s2
+
+appendDot9 str = many $ try (appendDot9PNG str) <|> skipLine
+
+appendxml str = many $ try (appendName ".xml" str) <|> skipLine
+             
 deleteDot9 = many $ try dot9PNGTopNG <|> skipLine
+
 
 nocurvetplline = many (oneOf " \t") <++> string "template = " <++> skipcurveinquote
 noCurveTemplateLine = many $ try nocurvetplline <|> try altnocurveline <|> try shiftnocurveline <|> origLine
@@ -102,6 +114,29 @@ insertSSL = many $ try insertsplitsettingline <|> origLine
 deleteLines start linenum = many $ try (linehead start linenum) <|> origLine
 deletedisablefirstalt = deleteLines "--disable slide_down for 1st" 13
 
+appendDrawableState = do
+                    s1 <- many (oneOf " \t")
+                    s2 <- string "<item "
+                    s3 <- string "android:drawable=\""
+                    s4 <- many (noneOf "\"")
+                    s5 <- many (noneOf "\n")
+                    s6 <- count 1 newline
+                    return $ s1 ++ s2 ++ "android:state_selected=\"true\" " ++ s3 ++ s4 ++ "_scale" ++ s5 ++ s6
+                           ++ s1 ++ s2 ++ s3 ++ s4 ++ s5 ++ s6
+
+modifydrawablename = do
+                    s1 <- many (oneOf " \t")
+                    s2 <- string "<item "
+                    s3 <- string "android:drawable=\""
+                    s4 <- many (noneOf "\"")
+                    s5 <- many (noneOf "\n")
+                    s6 <- count 1 newline
+                    return $ s1 ++ s2 ++ s3 ++ s4 ++ "_scale" ++ s5 ++ s6
+
+modifyDN = many $ try modifydrawablename <|> origLine
+                           
+appendDS = many $ try appendDrawableState <|> origLine
+
 linehead str linenum = do
          string str
          count linenum skipLine
@@ -119,7 +154,11 @@ main = do
           "-a" -> runp tracked contents
           "-m" -> runp modified contents
           "-d.9" -> runp deleteDot9 contents
+          "-a.9" -> runp2 (appendDot9 "_scale") contents
+          "-axml" -> runp2 (appendxml "_scale") contents
           "-nc" -> runp2 noCurveTemplateLine contents
           "-iss" -> runp2 insertSSL contents
           "-ibs" -> runp2 insertSurface contents
           "-skip" -> runp2 deletedisablefirstalt contents
+          "-ads" -> runp2 appendDS contents
+          "-mdn" -> runp2 modifyDN contents
