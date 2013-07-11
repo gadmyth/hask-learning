@@ -142,6 +142,8 @@ linehead str linenum = do
          count linenum skipLine
          return ""
 
+ignoreendline = string "end" <* count 2 newline <* string "end"
+ignoreEND = many $ try ignoreendline <|> origLine
 
 -- TODO: export the above function when add the following main
 
@@ -162,3 +164,4 @@ main = do
           "-skip" -> runp2 deletedisablefirstalt contents
           "-ads" -> runp2 appendDS contents
           "-mdn" -> runp2 modifyDN contents
+          "-igend" -> runp2 ignoreEND contents
