@@ -1,5 +1,18 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
+module Main (main,
+	   skipLine,
+	   origLine,
+	   gitStatusLine,
+	   normalLine,
+	   modifiedhead,
+	   trackedhead,
+	   untrackhead,
+	   ignoreendline,
+	   untracked,
+	   tracked,
+	   modified) where
+
 import Text.Parsec.Char
 import Text.Parsec.String
 import Text.Parsec.Prim
