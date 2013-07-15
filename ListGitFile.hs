@@ -158,6 +158,15 @@ linehead str linenum = do
 ignoreendline = string "end" <* count 2 newline <* string "end"
 ignoreEND = many $ try ignoreendline <|> origLine
 
+enableOrder = many $ try enableorderline <|> origLine
+enableorderline = do
+                s1 <- many (noneOf "(") 
+                s2 <- many (noneOf ",")
+                s3 <- string ", \"split_\""
+                s4 <- string ")\n"
+                return $ s1 ++ s2 ++ s3 ++ ", true" ++ s4
+
+
 -- TODO: export the above function when add the following main
 
 main = do
@@ -178,3 +187,4 @@ main = do
           "-ads" -> runp2 appendDS contents
           "-mdn" -> runp2 modifyDN contents
           "-igend" -> runp2 ignoreEND contents
+          "-eo" -> runp2 enableOrder contents
