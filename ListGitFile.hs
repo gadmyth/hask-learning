@@ -93,12 +93,27 @@ tobenil = do
         many (noneOf "\n")
         return "nil"
 
-findstr str = do
+-- | Tool
+find_skip_str str = do
          manyTill anyChar (try (string str))
 
+-- | Tool
+findstr str = do
+  x <- find_skip_str str 
+  return $ x ++ str
+
+-- |usage: 
+-- |runP findSplit False "" "<Key keyName=\"sk_split\" keyIcon=\"@drawable/key_fore_split\" backgroundType=\"fun\" mainOnlyTextSize=\"@dimen/button_textsize\"/>"
+findSplit = do
+  x <- findstr "\"sk_split\""
+  y <- try (findstr "ignoreCurve=\"true\"" <++> find_skip_str ">") <|> do {setState True; find_skip_str ">"}
+  st <- getState
+  if st then return $ x ++ " ignoreCurve=\"true\"" ++ y ++ ">" else return $ x ++ y ++ ">"
+
+  
 skipcurveinquote = (string "\"") <++> skipcurve <++> (string "\"")
 
-skipcurve = (findstr "_curve") <++> (many (noneOf "\"\n")) <++> (count 1 newline)
+skipcurve = (find_skip_str "_curve") <++> (many (noneOf "\"\n")) <++> (count 1 newline)
 
 insertNL content = do
          s <- count 1 newline
@@ -170,10 +185,12 @@ enableorderline = do
 type PParser = Parsec String Bool
 tak :: PParser String
 tak = do
-  x <- many (oneOf " \t")
-  setState True
-  y <- many anyChar
-  return $ x ++ y
+  s <- many (oneOf " \t")
+  st <- getState
+  setState (not st)
+  s2 <- string "fuck"
+  s3 <- try (string "end") <|> string "eof"
+  return $ s ++ s2 ++ s3 ++ (show st)
 
 -- TODO: export the above function when add the following main
 
