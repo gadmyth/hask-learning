@@ -94,7 +94,7 @@ tobenil = do
         return "nil"
 
 findstr str = do
-         manyTill (letter <|> oneOf "_.") (try (string str))
+         manyTill anyChar (try (string str))
 
 skipcurveinquote = (string "\"") <++> skipcurve <++> (string "\"")
 
