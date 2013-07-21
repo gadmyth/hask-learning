@@ -167,6 +167,14 @@ enableorderline = do
                 return $ s1 ++ s2 ++ s3 ++ ", true" ++ s4
 
 
+type PParser = Parsec String Bool
+tak :: PParser String
+tak = do
+  x <- many (oneOf " \t")
+  setState True
+  y <- many anyChar
+  return $ x ++ y
+
 -- TODO: export the above function when add the following main
 
 main = do
