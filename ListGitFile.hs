@@ -57,6 +57,13 @@ runpminus head str = runp_base head str returnNull where
           returnNull _ = return ()
 
 
+runparsec parsec state content = do
+  case (runP parsec state "" content) of
+    Left err -> do
+      print err
+    Right result -> do
+      putStr result
+      
 runp_base :: Parser [String] -> String -> (String -> IO()) -> IO ()
 runp_base head str printfn = do
      case (runParser head () "" str) of
@@ -97,18 +104,25 @@ tobenil = do
 find_skip_str str = do
          manyTill anyChar (try (string str))
 
+find_skip_str' not_str str = do
+  manyTill (noneOf not_str) (try (string str))
 -- | Tool
 findstr str = do
   x <- find_skip_str str 
+  return $ x ++ str
+
+findstr' not_str str = do
+  x <- find_skip_str' not_str str
   return $ x ++ str
 
 -- |usage: 
 -- |runP findSplit False "" "<Key keyName=\"sk_split\" keyIcon=\"@drawable/key_fore_split\" backgroundType=\"fun\" mainOnlyTextSize=\"@dimen/button_textsize\"/>"
 findSplit = do
   x <- findstr "\"sk_split\""
-  y <- try (findstr "ignoreCurve=\"true\"" <++> find_skip_str ">") <|> do {setState True; find_skip_str ">"}
+  y <- try (findstr' ">" "ignoreCurve=\"true\"" <++> find_skip_str ">") <|> do {setState True; find_skip_str ">"}
+  z <- many anyChar
   st <- getState
-  if st then return $ x ++ " ignoreCurve=\"true\"" ++ y ++ ">" else return $ x ++ y ++ ">"
+  if st then return $ x ++ " ignoreCurve=\"true\"" ++ y ++ ">" ++ z else return $ x ++ y ++ ">" ++ z
 
   
 skipcurveinquote = (string "\"") <++> skipcurve <++> (string "\"")
@@ -213,3 +227,4 @@ main = do
           "-mdn" -> runp2 modifyDN contents
           "-igend" -> runp2 ignoreEND contents
           "-eo" -> runp2 enableOrder contents
+          "-fs" -> runparsec findSplit False contents
