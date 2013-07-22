@@ -124,6 +124,7 @@ findSplit = do
   st <- getState
   if st then return $ x ++ " ignoreCurve=\"true\"" ++ y ++ ">" ++ z else return $ x ++ y ++ ">" ++ z
 
+findSplitAll = try findSplit <|> many anyChar
   
 skipcurveinquote = (string "\"") <++> skipcurve <++> (string "\"")
 
@@ -227,4 +228,4 @@ main = do
           "-mdn" -> runp2 modifyDN contents
           "-igend" -> runp2 ignoreEND contents
           "-eo" -> runp2 enableOrder contents
-          "-fs" -> runparsec findSplit False contents
+          "-fs" -> runparsec findSplitAll False contents
