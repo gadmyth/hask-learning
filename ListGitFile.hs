@@ -30,7 +30,7 @@ trackedhead :: Parser String
 trackedhead = count 1 (char 'A')
 
 modifiedhead :: Parser String
-modifiedhead = count 1 (char 'M')
+modifiedhead = many (char ' ') >> count 1 (char 'M')
 
 skipLine = do
          s <- many (noneOf "\n") <* newline
