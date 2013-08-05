@@ -101,7 +101,21 @@ findSplit = do
   if st then return $ x ++ " ignoreCurve=\"true\"" ++ y ++ ">" ++ z else return $ x ++ y ++ ">" ++ z
 
 findSplitAll = try findSplit <|> many anyChar
-  
+
+skipPreview = try skipsymspreview <|> many anyChar
+skipsymspreview = do
+  x <- findstr "\"sk_sym\""
+  y <- try (find_skip_str' ">" "iconPreview=\"@drawable/key_preview_sym\"" <++> find_skip_str' ">" "iconPreviewRight=\"@drawable/key_fore_sym_emo\"") <|> findstr ">"
+  z <- many anyChar
+  return $ x ++ y ++ z
+
+skipsymchs = try skipchssym <|> many anyChar
+skipchssym = do
+  x <- findstr "s.softkeys[\"sk_sym\"] = ck.set_sym_key(\"eng_sym_\", \"split_\""
+  y <- try (find_skip_str ", true") <|> many anyChar
+  z <- many anyChar
+  return $ x ++ y ++ z
+ 
 skipcurveinquote = (string "\"") <++> skipcurve <++> (string "\"")
 
 skipcurve = (find_skip_str "_curve") <++> (many (noneOf "\"\n")) <++> (count 1 newline)
@@ -205,3 +219,5 @@ main = do
           "-igend" -> runp2 ignoreEND contents
           "-eo" -> runp2 enableOrder contents
           "-fs" -> runparsec findSplitAll False contents
+          "-ssp" -> runparsec skipPreview False contents
+          "-scs" -> runparsec skipsymchs False contents
